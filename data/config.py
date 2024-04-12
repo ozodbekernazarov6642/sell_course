@@ -7,7 +7,6 @@ env.read_env()
 # .env fayl ichidan quyidagilarni o'qiymiz
 BOT_TOKEN = '6975533676:AAF51ezr9N3CDdnMqYMVQVg-9d8m_QDuZkY'  # Bot toekn
 ADMINS = 6089744035  # adminlar ro'yxati
-IP = env.str("ip")  # Xosting ip manzili
 
 DB_USER = 'sell_course_owner'
 DB_PASS = 'M7UIiPQ3rJuw'
