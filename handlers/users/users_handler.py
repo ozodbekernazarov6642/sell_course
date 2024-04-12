@@ -1,0 +1,226 @@
+import asyncio
+from datetime import datetime
+
+from aiogram import types
+from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters import CommandStart, CommandHelp
+from aiogram.types import ContentType, Message, CallbackQuery
+from pytz import timezone
+
+from data.config import ADMINS
+from keyboards.inline.user_inline import price, make_confirmation_keyboard
+from states.user_state import User_register
+from keyboards.default.user_keyboard import allow_keyboard, phone_number_keyboard, description_keyboard
+from loader import dp, db, bot
+
+
+@dp.message_handler(text='Lotin')
+async def start_latin(message: types.Message):
+    s = 0
+    all_user = await db.select_all_users()
+    for user in all_user:
+        if user[0] == str(message.from_user.id):
+            await message.answer(text="Siz botdan ro'yxatdan o'tgansiz!\n\n"
+                                      f"Ta'riflardan birni tanlang👇",
+                                 reply_markup=description_keyboard)
+            await User_register.description.set()
+            s += 1
+    if s == 0:
+        await message.answer("Assalomu alaykum!\n\n"
+                             "Men psixolog Kamola Shakarovaning yordamchisi <b>Mehribonman❤️</b> \n\n"
+                             "Sizga MATRITSA transformatsion dasturida qatnashishingiz uchun yordam beraman! \n"
+                             "Keling, tanishvolamiz!")
+        await message.answer("Sizga bir nechta savollar beraman, rozimisiz?\n\n"
+                             "Rozi bo'lsangiz, pastdagi tugmani bosing❤️👇🏻", reply_markup=allow_keyboard)
+
+
+@dp.message_handler(CommandStart(), state=User_register.all_states)
+async def cmd_start(message: types.Message):
+    s = 0
+    all_user = await db.select_all_users()
+    for user in all_user:
+        if user[0] == str(message.from_user.id):
+            await message.answer(text="Siz botdan ro'yxatdan o'tgansiz!\n\n"
+                                      f"Ta'riflardan birni tanlang👇",
+                                 reply_markup=description_keyboard)
+            await User_register.description.set()
+            s += 1
+    if s == 0:
+        await message.answer("Assalomu alaykum!\n\n"
+                             "Men psixolog Kamola Shakarovaning yordamchisi <b>Mehribonman❤️</b> \n\n"
+                             "Sizga MATRITSA transformatsion dasturida qatnashishingiz uchun yordam beraman! \n"
+                             "Keling, tanishvolamiz!")
+        await message.answer("Sizga bir nechta savollar beraman, rozimisiz?\n\n"
+                             "Rozi bo'lsangiz, pastdagi tugmani bosing❤️👇🏻", reply_markup=allow_keyboard)
+
+
+@dp.message_handler(text="Roziman✅")
+async def allow_user(message: types.Message):
+    await message.answer(text="Ismingizni kiriting")
+    await User_register.full_name.set()
+
+
+@dp.message_handler(state=User_register.full_name)
+async def full_name_user(message: types.Message, state: FSMContext):
+    await state.update_data(
+        {
+            "full_name": message.text
+        }
+    )
+    await message.answer("Telefon raqamingizni yuboring👇", reply_markup=phone_number_keyboard)
+    await User_register.phone_number.set()
+
+
+@dp.message_handler(state=User_register.phone_number, content_types=ContentType.CONTACT)
+async def process_phone_number(message: Message, state: FSMContext):
+    await state.update_data(
+        {
+            "phone_number": message.contact.phone_number
+        }
+    )
+    user_info = await state.get_data()
+    full_name_ = user_info["full_name"]
+    phone_number = user_info["phone_number"]
+    await db.add_user(
+        id=str(message.from_user.id),
+        full_name=full_name_,
+        phone_number=str(phone_number),
+        date_time=str(datetime.now(tz=timezone('Asia/Tashkent'))).split('.')[0],
+        user_name=message.from_user.username
+    )
+    await message.answer("Ta'rifni tanlang", reply_markup=description_keyboard)
+    await User_register.description.set()
+
+
+@dp.message_handler(state=User_register.phone_number)
+async def process_phone_number_test(message: Message, state: FSMContext):
+    await message.answer(text="Telefon raqam yuborish tugmasini bo'sing👇")
+
+
+@dp.message_handler(state=User_register.all_states, text="Biznes")
+@dp.message_handler(text="Biznes")
+async def process_description_standart(message: Message, state: FSMContext):
+    await state.update_data(
+        {
+            "description": message.text
+        }
+    )
+    await message.answer(text="\t<b>BIZNES</b>\n\n"
+                              "<b>Kurs narxi</b>: <i>999.000</i> so'm\n", reply_markup=price)
+    await User_register.price.set()
+
+
+@dp.callback_query_handler(text='price', state=User_register.price)
+async def process_price(call: CallbackQuery, state: FSMContext):
+    await call.message.delete()
+    await call.message.answer(text="💳Karta ma'lumotlari:\n\n"
+                                   "<b>Karta raqami</b>: <code>5614 6820 0657 7847</code>\n"
+                                   "<b>Karta egasi</b>: <i>Kamola Shakarova</i>\n\n"
+                                   "Pul Miqdori to'g'riligini tekshiring va to'lov chekini skrinshotini shu yerga yuboring!")
+    await User_register.check_state.set()
+
+
+@dp.message_handler(state=User_register.check_state, content_types=types.ContentType.PHOTO)
+async def process_photo(message: Message, state: FSMContext):
+    file_id = message.photo[-1].file_id
+    user_info = await state.get_data()
+    description = user_info["description"]
+    user_all = await db.select_all_users()
+    if description == "Biznes":
+        for user in user_all:
+            if user[0] == str(message.from_user.id):
+                await db.add_sell_course_user(
+                    id=str(message.from_user.id),
+                    phone_number=user[2],
+                    full_name=user[1],
+                    description=description,
+                    course_sell_time=str(datetime.now(tz=timezone('Asia/Tashkent'))).split('.')[0],
+                    user_name=message.from_user.username,
+                    price='999.000'
+                )
+                for user_ in await db.select_all_sell_course_users():
+                    if user_[0] == user[0]:
+                        await state.update_data(
+                            {
+                                "phone_number": user[2],
+                                "full_name": user[1],
+                                "data_time": user_[4],
+                                'price': user_[6]
+                            }
+                        )
+        user_info_1 = await state.get_data()
+        await bot.send_photo(
+            chat_id=6089744035, photo=file_id, caption=(
+                f"<b>Foydalanuvchi id</b>: <i>{message.from_user.id}\n</i>"
+                f"<b>Telefon nomer</b>: <i>{user_info_1.get('phone_number')}\n</i>"
+                f"<b>Foydalanuvchi Ismi</b>: <i>{user_info_1.get('full_name')}\n</i>"
+                f"<b>Ta'rif</b>: <i>{user_info_1.get('description')}\n</i>"
+                f"<b>To'lov summasi</b>: <i>{user_info_1.get('price')}\n</i>"
+                f"<b>To'lov vaqti</b>:<i>{user_info_1.get('data_time')}\n </i>"
+                f"<b>Foydalanuvchi nomi</b>:<i> <a href='https://t.me/{user_info_1.get('phone_number')}'>{message.from_user.full_name}</a></i>"
+            ), reply_markup=await make_confirmation_keyboard(message.from_user.id)
+        )
+
+    if description == "VIP":
+        for user in user_all:
+            if user[0] == str(message.from_user.id):
+                await db.add_sell_course_user(
+                    id=str(message.from_user.id),
+                    phone_number=user[2],
+                    full_name=user[1],
+                    description=description,
+                    course_sell_time=str(datetime.now(tz=timezone('Asia/Tashkent'))).split('.')[0],
+                    user_name=message.from_user.username,
+                    price='5.555.000'
+                )
+                for user_ in await db.select_all_sell_course_users():
+                    if user_[0] == user[0]:
+                        await state.update_data(
+                            {
+                                "phone_number": user[2],
+                                "full_name": user[1],
+                                "data_time": user_[4],
+                                'price': user_[6]
+                            }
+                        )
+        user_info_1 = await state.get_data()
+        await bot.send_photo(
+            chat_id=6089744035, photo=file_id, caption=(
+                f"<b>Foydalanuvchi id</b>: <i>{message.from_user.id}\n</i>"
+                f"<b>Telefon nomer</b>: <i>{user_info_1.get('phone_number')}\n</i>"
+                f"<b>Foydalanuvchi Ismi</b>: <i>{user_info_1.get('full_name')}\n</i>"
+                f"<b>Ta'rif</b>: <i>{user_info_1.get('description')}\n</i>"
+                f"<b>To'lov summasi</b>: <i>{user_info_1.get('price')}\n</i>"
+                f"<b>To'lov vaqti</b>:<i>{user_info_1.get('data_time')}\n </i>"
+                f"<b>Foydalanuvchi nomi</b>:<i> <a href='https://t.me/{user_info_1.get('phone_number')}'>{message.from_user.full_name}</a></i>"
+            ), reply_markup=await make_confirmation_keyboard(message.from_user.id)
+        )
+
+    await message.answer("To'lovingiz haqida ma'lumot Menejerimizga yuborildi\n\n"
+                         "To'lovingiz muvaffaqiyatli o'tgan bo'lsa 24 soat ichida sizga Menedjerlarimiz Bot orqali yopiq guruh linkini yuboradi")
+    await state.finish()
+    await message.answer(text="Tanlovingiz uchun rahmat!\n\n"
+                              "Hayotiy transformatsiyalarga tayyorlaning!✨✨✨")
+    await asyncio.sleep(0.3)
+    await message.answer("Ta'riflardan birni tanlang👇", reply_markup=description_keyboard)
+    await User_register.description.set()
+
+
+@dp.message_handler(state=User_register.all_states, text="VIP")
+@dp.message_handler(text="VIP")
+async def process_description_biznes(message: Message, state: FSMContext):
+    await state.update_data(
+        {
+            "description": message.text
+        }
+    )
+    await message.answer(text="\t<b>VIP</b>\n\n"
+                              "<b>Kurs narxi</b>: <i>5.555.000</i> so'm", reply_markup=price)
+    await User_register.price.set()
+
+
+@dp.callback_query_handler(text="back_menu", state=User_register.all_states)
+async def process_back_menu(call: types.CallbackQuery, state: FSMContext):
+    await call.message.delete()
+    await call.message.answer("Ta'rifni tanlang", reply_markup=description_keyboard)
+    await User_register.description.set()
