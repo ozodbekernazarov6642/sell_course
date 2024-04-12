@@ -1,9 +1,5 @@
 from environs import Env
 
-# environs kutubxonasidan foydalanish
-env = Env()
-env.read_env()
-
 # .env fayl ichidan quyidagilarni o'qiymiz
 BOT_TOKEN = '6975533676:AAF51ezr9N3CDdnMqYMVQVg-9d8m_QDuZkY'  # Bot toekn
 ADMINS = 6089744035  # adminlar ro'yxati
