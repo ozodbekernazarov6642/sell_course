@@ -7,6 +7,7 @@ from aiogram.dispatcher.filters import CommandStart, CommandHelp
 from aiogram.types import ContentType, Message, CallbackQuery
 from pytz import timezone
 
+from data import config
 from data.config import ADMINS
 from keyboards.inline.user_inline import price, make_confirmation_keyboard
 from states.user_state import User_register
@@ -14,27 +15,8 @@ from keyboards.default.user_keyboard import allow_keyboard, phone_number_keyboar
 from loader import dp, db, bot
 
 
-@dp.message_handler(text='Lotin')
-async def start_latin(message: types.Message):
-    s = 0
-    all_user = await db.select_all_users()
-    for user in all_user:
-        if user[0] == str(message.from_user.id):
-            await message.answer(text="Siz botdan ro'yxatdan o'tgansiz!\n\n"
-                                      f"Ta'riflardan birni tanlang👇",
-                                 reply_markup=description_keyboard)
-            await User_register.description.set()
-            s += 1
-    if s == 0:
-        await message.answer("Assalomu alaykum!\n\n"
-                             "Men psixolog Kamola Shakarovaning yordamchisi <b>Mehribonman❤️</b> \n\n"
-                             "Sizga MATRITSA transformatsion dasturida qatnashishingiz uchun yordam beraman! \n"
-                             "Keling, tanishvolamiz!")
-        await message.answer("Sizga bir nechta savollar beraman, rozimisiz?\n\n"
-                             "Rozi bo'lsangiz, pastdagi tugmani bosing❤️👇🏻", reply_markup=allow_keyboard)
-
-
 @dp.message_handler(CommandStart(), state=User_register.all_states)
+@dp.message_handler(CommandStart())
 async def cmd_start(message: types.Message):
     s = 0
     all_user = await db.select_all_users()
@@ -46,10 +28,8 @@ async def cmd_start(message: types.Message):
             await User_register.description.set()
             s += 1
     if s == 0:
-        await message.answer("Assalomu alaykum!\n\n"
-                             "Men psixolog Kamola Shakarovaning yordamchisi <b>Mehribonman❤️</b> \n\n"
-                             "Sizga MATRITSA transformatsion dasturida qatnashishingiz uchun yordam beraman! \n"
-                             "Keling, tanishvolamiz!")
+        await message.answer(
+            f"Assalomu aleykum {message.from_user.full_name} Temuriy Avlodi universitetining to'lov botiga Xush kelibsiz")
         await message.answer("Sizga bir nechta savollar beraman, rozimisiz?\n\n"
                              "Rozi bo'lsangiz, pastdagi tugmani bosing❤️👇🏻", reply_markup=allow_keyboard)
 
@@ -84,7 +64,7 @@ async def process_phone_number(message: Message, state: FSMContext):
     await db.add_user(
         id=str(message.from_user.id),
         full_name=full_name_,
-        phone_number=str(phone_number),
+        phone_number= str(phone_number),
         date_time=str(datetime.now(tz=timezone('Asia/Tashkent'))).split('.')[0],
         user_name=message.from_user.username
     )
@@ -97,16 +77,16 @@ async def process_phone_number_test(message: Message, state: FSMContext):
     await message.answer(text="Telefon raqam yuborish tugmasini bo'sing👇")
 
 
-@dp.message_handler(state=User_register.all_states, text="Biznes")
-@dp.message_handler(text="Biznes")
+@dp.message_handler(state=User_register.all_states, text="Qahramon")
+@dp.message_handler(text="Qahramon")
 async def process_description_standart(message: Message, state: FSMContext):
     await state.update_data(
         {
             "description": message.text
         }
     )
-    await message.answer(text="\t<b>BIZNES</b>\n\n"
-                              "<b>Kurs narxi</b>: <i>999.000</i> so'm\n", reply_markup=price)
+    await message.answer(text="\t<b>Qahramon</b>\n\n"
+                              "<b>Kurs narxi</b>: <i>499.000</i> so'm\n", reply_markup=price)
     await User_register.price.set()
 
 
@@ -114,8 +94,8 @@ async def process_description_standart(message: Message, state: FSMContext):
 async def process_price(call: CallbackQuery, state: FSMContext):
     await call.message.delete()
     await call.message.answer(text="💳Karta ma'lumotlari:\n\n"
-                                   "<b>Karta raqami</b>: <code>5614 6820 0657 7847</code>\n"
-                                   "<b>Karta egasi</b>: <i>Kamola Shakarova</i>\n\n"
+                                   "<b>Karta raqami</b>: <code>8600 0417 2124 4243</code>\n"
+                                   "<b>Karta egasi</b>: <i>Nusratilla Sunnatullayev</i>\n\n"
                                    "Pul Miqdori to'g'riligini tekshiring va to'lov chekini skrinshotini shu yerga yuboring!")
     await User_register.check_state.set()
 
@@ -126,7 +106,7 @@ async def process_photo(message: Message, state: FSMContext):
     user_info = await state.get_data()
     description = user_info["description"]
     user_all = await db.select_all_users()
-    if description == "Biznes":
+    if description == "Qahramon":
         for user in user_all:
             if user[0] == str(message.from_user.id):
                 await db.add_sell_course_user(
@@ -136,7 +116,7 @@ async def process_photo(message: Message, state: FSMContext):
                     description=description,
                     course_sell_time=str(datetime.now(tz=timezone('Asia/Tashkent'))).split('.')[0],
                     user_name=message.from_user.username,
-                    price='999.000'
+                    price='499.000'
                 )
                 for user_ in await db.select_all_sell_course_users():
                     if user_[0] == user[0]:
@@ -150,7 +130,7 @@ async def process_photo(message: Message, state: FSMContext):
                         )
         user_info_1 = await state.get_data()
         await bot.send_photo(
-            chat_id=6089744035, photo=file_id, caption=(
+            chat_id=config.ADMINS[0], photo=file_id, caption=(
                 f"<b>Foydalanuvchi id</b>: <i>{message.from_user.id}\n</i>"
                 f"<b>Telefon nomer</b>: <i>{user_info_1.get('phone_number')}\n</i>"
                 f"<b>Foydalanuvchi Ismi</b>: <i>{user_info_1.get('full_name')}\n</i>"
@@ -161,7 +141,7 @@ async def process_photo(message: Message, state: FSMContext):
             ), reply_markup=await make_confirmation_keyboard(message.from_user.id)
         )
 
-    if description == "VIP":
+    if description == "Chempion":
         for user in user_all:
             if user[0] == str(message.from_user.id):
                 await db.add_sell_course_user(
@@ -171,7 +151,7 @@ async def process_photo(message: Message, state: FSMContext):
                     description=description,
                     course_sell_time=str(datetime.now(tz=timezone('Asia/Tashkent'))).split('.')[0],
                     user_name=message.from_user.username,
-                    price='5.555.000'
+                    price='1.199.000'
                 )
                 for user_ in await db.select_all_sell_course_users():
                     if user_[0] == user[0]:
@@ -185,7 +165,7 @@ async def process_photo(message: Message, state: FSMContext):
                         )
         user_info_1 = await state.get_data()
         await bot.send_photo(
-            chat_id=6089744035, photo=file_id, caption=(
+            chat_id=config.ADMINS[0], photo=file_id, caption=(
                 f"<b>Foydalanuvchi id</b>: <i>{message.from_user.id}\n</i>"
                 f"<b>Telefon nomer</b>: <i>{user_info_1.get('phone_number')}\n</i>"
                 f"<b>Foydalanuvchi Ismi</b>: <i>{user_info_1.get('full_name')}\n</i>"
@@ -197,25 +177,25 @@ async def process_photo(message: Message, state: FSMContext):
         )
 
     await message.answer("To'lovingiz haqida ma'lumot Menejerimizga yuborildi\n\n"
-                         "To'lovingiz muvaffaqiyatli o'tgan bo'lsa 24 soat ichida sizga Menedjerlarimiz Bot orqali yopiq guruh linkini yuboradi")
+                         "To'lovingiz muvaffaqiyatli o'tgan bo'lsa 24 soat ichida sizga Menedjerlarimiz b   og'lanadi")
     await state.finish()
     await message.answer(text="Tanlovingiz uchun rahmat!\n\n"
-                              "Hayotiy transformatsiyalarga tayyorlaning!✨✨✨")
+                              "Hayotiy o'zgarishga tayyorlaning!✨✨✨")
     await asyncio.sleep(0.3)
     await message.answer("Ta'riflardan birni tanlang👇", reply_markup=description_keyboard)
     await User_register.description.set()
 
 
-@dp.message_handler(state=User_register.all_states, text="VIP")
-@dp.message_handler(text="VIP")
+@dp.message_handler(state=User_register.all_states, text="Chempion")
+@dp.message_handler(text="Chempion")
 async def process_description_biznes(message: Message, state: FSMContext):
     await state.update_data(
         {
             "description": message.text
         }
     )
-    await message.answer(text="\t<b>VIP</b>\n\n"
-                              "<b>Kurs narxi</b>: <i>5.555.000</i> so'm", reply_markup=price)
+    await message.answer(text="\t<b>Chempion</b>\n\n"
+                              "<b>Kurs narxi</b>: <i>1.199.000</i> so'm", reply_markup=price)
     await User_register.price.set()
 
 

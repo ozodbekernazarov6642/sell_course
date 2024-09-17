@@ -11,101 +11,71 @@ from keyboards.inline.user_inline import confirmation_keyboard_price
 from loader import dp, db, bot
 
 
-@dp.callback_query_handler(Text(startswith='confirmation'), user_id=ADMINS)
+@dp.callback_query_handler(Text(startswith='confirmation'), user_id=ADMINS[0])
 async def confirmation(call: types.CallbackQuery):
     await call.answer("To'lov tasdiqlangan✅")
 
 
-@dp.callback_query_handler(Text(startswith='con:'), user_id=ADMINS)
+@dp.callback_query_handler(Text(startswith='con:'), user_id=ADMINS[0])
 async def confirmation(call: types.CallbackQuery):
     user_id = call.data.split(':')[1].strip()
     users_info = await db.select_all_sell_course_users()
-    try:
-        for user_ in users_info:
-            if user_[0] == str(user_id):
-                if (user_[3] == "Biznes" or user_[3] == "Бизнес") and user_[4].split(" ")[-1].strip() == \
-                        call.message.caption.split(" ")[-5].strip():
-                    link_ = await bot.create_chat_invite_link(chat_id=-1002089073982, member_limit=1)
-                    await bot.send_message(chat_id=int(user_id),
-                                           text=f"🔰 BIZNES \n\n"
-                                                f"🔗Sizning to'lovingiz tasdiqlandi mahfiy kanal \n<i>👉🏼<a href='{link_.invite_link}'>havolasini</a>👈🏼</i> bosing!\n\n"
-                                                f"<b>❗ELATMA:</b> <i>Havola faqat bir marta ishlaydi</i>",
-                                           disable_web_page_preview=True)
-                    await db.add_con_sell_course_user(
-                        id=user_[0],
-                        full_name=user_[1],
-                        phone_number=user_[2],
-                        description=user_[3],
-                        course_sell_time=user_[4],
-                        user_name=user_[5],
-                        price=user_[6],
-                        con_time=str(datetime.now(tz=timezone('Asia/Tashkent'))).split('.')[0]
-                    )
-                    await call.answer(text="Buyurtma tasdiqlandi✅")
-                    await call.message.edit_reply_markup(reply_markup=confirmation_keyboard_price)
+    for user_ in users_info:
+        if user_[0] == str(user_id):
+            if (user_[3] == "Qahramon" or user_[3] == "Бизнес") and user_[4].split(" ")[-1].strip() == \
+                    call.message.caption.split(" ")[-5].strip():
+                await bot.send_message(chat_id=int(user_id),
+                                       text=f"🔰 Qahramon \n\n"
+                                            f"Sizning To'lovingiz Tasdiqlandi Opertor siz bn 24soat ichida bog'lanadi",
+                                       disable_web_page_preview=True)
+                await db.add_con_sell_course_user(
+                    id=user_[0],
+                    full_name=user_[1],
+                    phone_number=user_[2],
+                    description=user_[3],
+                    course_sell_time=user_[4],
+                    user_name=user_[5],
+                    price=user_[6],
+                    con_time=str(datetime.now(tz=timezone('Asia/Tashkent'))).split('.')[0]
+                )
+                await call.answer(text="Buyurtma tasdiqlandi✅")
+                await call.message.edit_reply_markup(reply_markup=confirmation_keyboard_price)
 
-    except Exception as e:
-        link = await bot.create_chat_invite_link(chat_id=-1002089073982, member_limit=1)
-        await call.message.answer(text="❗Diqqat to'lovni tasdiqlashda muammo yuzaga keldi.\n"
-                                       f"Buyurtmachiga shaxsiydan ushbu havolani yuboring "
-                                       f"{link.invite_link}", disable_web_page_preview=True)
-        for user_ in users_info:
-            if user_[0] == str(user_id):
-                if (user_[3] == "Biznes" or user_[3] == "Бизнес") and user_[4].split(" ")[-1].strip() == \
-                        call.message.caption.split(" ")[-5].strip():
-                    await db.add_con_sell_course_user(
-                        id=user_[0],
-                        full_name=user_[1],
-                        phone_number=user_[2],
-                        description=user_[3],
-                        course_sell_time=user_[4],
-                        user_name=user_[5],
-                        price=user_[6],
-                        con_time=str(datetime.now(tz=timezone('Asia/Tashkent'))).split('.')[0]
-                    )
+    for user_ in users_info:
+        if user_[0] == str(user_id):
+            if (user_[3] == "Qahramon" or user_[3] == "Бизнес") and user_[4].split(" ")[-1].strip() == \
+                    call.message.caption.split(" ")[-5].strip():
+                await db.add_con_sell_course_user(
+                    id=user_[0],
+                    full_name=user_[1],
+                    phone_number=user_[2],
+                    description=user_[3],
+                    course_sell_time=user_[4],
+                    user_name=user_[5],
+                    price=user_[6],
+                    con_time=str(datetime.now(tz=timezone('Asia/Tashkent'))).split('.')[0]
+                )
 
-    try:
-        for user in users_info:
-            if user[0] == str(user_id):
-                if (user[3] == "VIP" or user[3] == "ВИП") and user[4].split(" ")[-1].strip() == \
-                        call.message.caption.split(" ")[-5].strip():
-                    link = await bot.create_chat_invite_link(chat_id=-1002020995304, member_limit=1)
-                    await bot.send_message(chat_id=int(user_id),
-                                           text=f"🔰 VIP \n\n"
-                                                f"🔗Sizning to'lovingiz tasdiqlandi mahfiy kanal \n<i>👉🏼<a href='{link.invite_link}'>havolasini</a>👈🏼</i> bosing!\n\n"
-                                                f"<b>❗ELATMA:</b> <i>Havola faqat bir marta ishlaydi</i>",
-                                           disable_web_page_preview=True)
-                    await db.add_con_sell_course_user(
-                        id=user[0],
-                        full_name=user[1],
-                        phone_number=user[2],
-                        description=user[3],
-                        course_sell_time=user[4],
-                        user_name=user[5],
-                        price=user[6],
-                        con_time=str(datetime.now(tz=timezone('Asia/Tashkent'))).split('.')[0]
-                    )
-                    await call.answer(text="Buyurtma tasdiqlandi✅")
-                    await call.message.edit_reply_markup(reply_markup=confirmation_keyboard_price)
-    except:
-        link_ = await bot.create_chat_invite_link(chat_id=-1002020995304, member_limit=1)
-        await call.message.answer(text="❗Diqqat to'lovni tasdiqlashda muammo yuzaga keldi.\n"
-                                       f"Buyurtmachiga shaxsiydan ushbu havolani yuboring "
-                                       f"{link_.invite_link}", disable_web_page_preview=True)
-        for user in users_info:
-            if user[0] == str(user_id):
-                if (user[3] == "VIP" or user[3] == "ВИП") and user[4].split(" ")[-1].strip() == \
-                        call.message.caption.split(" ")[-5].strip():
-                    await db.add_con_sell_course_user(
-                        id=user[0],
-                        full_name=user[1],
-                        phone_number=user[2],
-                        description=user[3],
-                        course_sell_time=user[4],
-                        user_name=user[5],
-                        price=user[6],
-                        con_time=str(datetime.now(tz=timezone('Asia/Tashkent'))).split('.')[0]
-                    )
+    for user in users_info:
+        if user[0] == str(user_id):
+            if (user[3] == "Chempion" or user[3] == "ВИП") and user[4].split(" ")[-1].strip() == \
+                    call.message.caption.split(" ")[-5].strip():
+                await bot.send_message(chat_id=int(user_id),
+                                       text=f"🔰 Chempion \n\n"
+                                            f"Sizning To'lovingiz Tasdiqlandi Opertor siz bn 24soat ichida bog'lanadi",
+                                       disable_web_page_preview=True)
+                await db.add_con_sell_course_user(
+                    id=user[0],
+                    full_name=user[1],
+                    phone_number=user[2],
+                    description=user[3],
+                    course_sell_time=user[4],
+                    user_name=user[5],
+                    price=user[6],
+                    con_time=str(datetime.now(tz=timezone('Asia/Tashkent'))).split('.')[0]
+                )
+                await call.answer(text="Buyurtma tasdiqlandi✅")
+                await call.message.edit_reply_markup(reply_markup=confirmation_keyboard_price)
 
 
 workbook_ = Workbook()
@@ -124,7 +94,7 @@ user_list = user_list_workbook.active
 not_user_list = not_user_list_workbook.active
 
 
-@dp.message_handler(commands=['all_user'], user_id=ADMINS)
+@dp.message_handler(commands=['all_user'], user_id=ADMINS[0])
 async def user_get_changed_course(message: types.Message):
     all_users = await db.select_all_users()
     try:
@@ -149,7 +119,7 @@ async def user_get_changed_course(message: types.Message):
         await bot.send_document(chat_id=message.chat.id, document=InputFile(path_or_bytesio="not_user_info.xlsx"))
 
 
-@dp.message_handler(user_id=ADMINS, commands=['course_users'])
+@dp.message_handler(user_id=ADMINS[0], commands=['course_users'])
 async def user_get_all_course(message: types.Message):
     con_course_sell_users = await db.select_all_con_sell_course_users()
     try:
@@ -173,8 +143,10 @@ async def user_get_all_course(message: types.Message):
             all_user_info_[f"H{z + 2}"] = con_course_sell_users[z][6]
             all_user_info_[f"I{z + 2}"] = con_course_sell_users[z][7]
         user_workbook_.save("can_sel_course_user_info.xlsx")
-        await bot.send_document(chat_id=message.chat.id, document=InputFile(path_or_bytesio="can_sel_course_user_info.xlsx"))
+        await bot.send_document(chat_id=message.chat.id,
+                                document=InputFile(path_or_bytesio="can_sel_course_user_info.xlsx"))
     except:
         not_all_user_info[f"A1"] = "Foydalanuvchi topilmadi"
         not_user_workbook.save("not_can_sel_course_user_info.xlsx")
-        await bot.send_document(chat_id=message.chat.id, document=InputFile(path_or_bytesio="not_can_sel_course_user_info.xlsx"))
+        await bot.send_document(chat_id=message.chat.id,
+                                document=InputFile(path_or_bytesio="not_can_sel_course_user_info.xlsx"))

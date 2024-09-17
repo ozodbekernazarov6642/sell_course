@@ -11,7 +11,5 @@ from loader import dp
 @dp.message_handler(CommandStart(), state=User_register.all_states)
 @dp.message_handler(CommandStart())
 async def bot_start(message: types.Message, state: FSMContext):
-    await message.answer(f"Salom, Botdan foydalanish alifbosini tanlang👇\n\n"
-                         f"--------------------------------------\n\n"
-                         f"Салом ботдан фойдаланиш алифбосини танланг👇", reply_markup=lang_keyboard)
+    await message.answer(f"Salom, Botdan foydalanish uchun Tarifni tanlang", reply_markup=lang_keyboard)
     await state.finish()

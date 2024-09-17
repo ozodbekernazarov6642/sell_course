@@ -19,8 +19,8 @@ phone_number_keyboard = ReplyKeyboardMarkup(
 description_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [
-            KeyboardButton(text="Biznes"),
-            KeyboardButton(text="VIP")
+            KeyboardButton(text="Qahramon"),
+            KeyboardButton(text="Chempion")
         ]
     ], resize_keyboard=True, one_time_keyboard=True
 )
