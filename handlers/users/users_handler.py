@@ -86,7 +86,10 @@ async def process_description_standart(message: Message, state: FSMContext):
         }
     )
     await message.answer(text="\t<b>Qahramon</b>\n\n"
-                              "<b>Kurs narxi</b>: <i>499.000</i> so'm\n", reply_markup=price)
+                              "<b>Kurs narxi</b>👇\n"
+                              "❌<s><i>499.000 so'm</i></s>\n"
+                              "✅<i>199.000</i> so'm\n\n"
+                              "<b>ESLATMA❗</b>: <i>Chegirma 24soat amal qiladi</i>", reply_markup=price)
     await User_register.price.set()
 
 
@@ -116,7 +119,7 @@ async def process_photo(message: Message, state: FSMContext):
                     description=description,
                     course_sell_time=str(datetime.now(tz=timezone('Asia/Tashkent'))).split('.')[0],
                     user_name=message.from_user.username,
-                    price='499.000'
+                    price='199.000'
                 )
                 for user_ in await db.select_all_sell_course_users():
                     if user_[0] == user[0]:
@@ -151,7 +154,7 @@ async def process_photo(message: Message, state: FSMContext):
                     description=description,
                     course_sell_time=str(datetime.now(tz=timezone('Asia/Tashkent'))).split('.')[0],
                     user_name=message.from_user.username,
-                    price='1.199.000'
+                    price='199.000'
                 )
                 for user_ in await db.select_all_sell_course_users():
                     if user_[0] == user[0]:
@@ -195,7 +198,10 @@ async def process_description_biznes(message: Message, state: FSMContext):
         }
     )
     await message.answer(text="\t<b>Chempion</b>\n\n"
-                              "<b>Kurs narxi</b>: <i>1.199.000</i> so'm", reply_markup=price)
+                              "<b>Kurs narxi</b>👇\n"
+                              "❌<s><i>1.200.000 so'm</i></s>\n"
+                              "✅<i>199.000</i> so'm\n\n"
+                              "<b>ESLATMA❗</b>: <i>Chegirma 24soat amal qiladi</i>", reply_markup=price)
     await User_register.price.set()
 
 
