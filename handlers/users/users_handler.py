@@ -88,7 +88,18 @@ async def process_description_standart(message: Message, state: FSMContext):
     await message.answer(text="\t<b>Qahramon</b>\n\n"
                               "<b>Kurs narxi</b>👇\n"
                               "❌<s><i>499.000 so'm</i></s>\n"
-                              "✅<i>199.000</i> so'm\n\n"
+                              "✅<i>199.000</i> so'm\n\n"              
+                              "Suniy intellekt ✅\n"
+                              "Trading ✅\n"
+                              "Affiliate marketing ✅\n"
+                              "Freelancing ✅\n"
+                              "E-commerce ✅\n"
+                              "No coding dasturlash ✅\n"
+                              "Guruh chat✅\n"
+                              "Live vebinar lar❌\n"
+                              "Individual darslar❌\n"
+                              "Coffee break meeting❌\n"
+                              "Sertifikat ❌\n\n"
                               "<b>ESLATMA❗</b>: <i>Chegirma 24soat amal qiladi</i>", reply_markup=price)
     await User_register.price.set()
 
@@ -201,6 +212,17 @@ async def process_description_biznes(message: Message, state: FSMContext):
                               "<b>Kurs narxi</b>👇\n"
                               "❌<s><i>1.200.000 so'm</i></s>\n"
                               "✅<i>199.000</i> so'm\n\n"
+                              "Suniy intellekt ✅\n"
+                              "Trading ✅\n"
+                              "Affiliate marketing ✅\n"
+                              "Freelancing ✅\n"
+                              "E-commerce ✅\n"
+                              "No coding dasturlash ✅\n"
+                              "Guruh chat✅\n"
+                              "Live vebinar lar✅\n"
+                              "Individual darslar✅\n"
+                              "Coffee break meeting✅\n"
+                              "Sertifikat ✅\n\n"
                               "<b>ESLATMA❗</b>: <i>Chegirma 24soat amal qiladi</i>", reply_markup=price)
     await User_register.price.set()
 
