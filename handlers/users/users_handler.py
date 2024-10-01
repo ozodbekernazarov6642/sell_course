@@ -77,6 +77,31 @@ async def process_phone_number_test(message: Message, state: FSMContext):
     await message.answer(text="Telefon raqam yuborish tugmasini bo'sing👇")
 
 
+@dp.message_handler(state=User_register.all_states, text="Yangi")
+@dp.message_handler(text="Yangi")
+async def process_description_new(message: Message, state: FSMContext):
+    await state.update_data(
+        {
+            "description": message.text
+        }
+    )
+    await message.answer(text="\t<b>🔰Yangi</b>\n\n"
+                              "<b>Kurs narxi</b>👇\n"
+                              "\t\t<i><b>370.000 so'm</b></i>\n\n"
+                              "<b>Xususiyatlari</b>👇\n"
+                              "\t\t<i><b>7 ta soha (xohishiy)✅</b></i>\n"
+                              "\t\t<i><b>Kurator yordami✅</b></i>\n"
+                              "\t\t<i><b>Guruh chat✅</b></i>\n"
+                              "\t\t<i><b>Live vebinarlar✅</b></i>\n"
+                              "\t\t<i><b>Individual darslar ❌</b></i>\n"
+                              "\t\t<i><b>Sertifikat ❌</b></i>\n"
+                              "\t\t<i><b>Coffee break ❌</b></i>\n"
+                              "\t\t<i><b>Offline meeting❌</b></i>\n"
+                              "\t\t<i><b>Investitsiya 30$❌</b></i>", reply_markup=price)
+    await User_register.price.set()
+
+
+
 @dp.message_handler(state=User_register.all_states, text="Qahramon")
 @dp.message_handler(text="Qahramon")
 async def process_description_standart(message: Message, state: FSMContext):
@@ -85,22 +110,19 @@ async def process_description_standart(message: Message, state: FSMContext):
             "description": message.text
         }
     )
-    await message.answer(text="\t<b>Qahramon</b>\n\n"
+    await message.answer(text="\t<b>🔰Qahramon</b>\n\n"
                               "<b>Kurs narxi</b>👇\n"
-                              "❌<s><i>499.000 so'm</i></s>\n"
-                              "✅<i>199.000</i> so'm\n\n"              
-                              "Suniy intellekt ✅\n"
-                              "Trading ✅\n"
-                              "Affiliate marketing ✅\n"
-                              "Freelancing ✅\n"
-                              "E-commerce ✅\n"
-                              "No coding dasturlash ✅\n"
-                              "Guruh chat✅\n"
-                              "Live vebinar lar❌\n"
-                              "Individual darslar❌\n"
-                              "Coffee break meeting❌\n"
-                              "Sertifikat ❌\n\n"
-                              "<b>ESLATMA❗</b>: <i>Chegirma 24soat amal qiladi</i>", reply_markup=price)
+                              "\t\t<i><b>597.000 so'm</b></i>\n"
+                              "<b>Xususiyatlari</b>👇\n"
+                              "\t\t<i><b>7 ta soha (xohishiy)✅</b></i>\n"
+                              "\t\t<i><b>Kurator yordami✅</b></i>\n"
+                              "\t\t<i><b>Guruh chat✅</b></i>\n"
+                              "\t\t<i><b>Live vebinarlar✅</b></i>\n"
+                              "\t\t<i><b>Individual darslar ✅</b></i>\n"
+                              "\t\t<i><b>Sertifikat ✅</b></i>\n"
+                              "\t\t<i><b>Coffee break ❌</b></i>\n"
+                              "\t\t<i><b>Offline meeting❌</b></i>\n"
+                              "\t\t<i><b>Investitsiya 30$❌</b></i>", reply_markup=price)
     await User_register.price.set()
 
 
@@ -130,7 +152,7 @@ async def process_photo(message: Message, state: FSMContext):
                     description=description,
                     course_sell_time=str(datetime.now(tz=timezone('Asia/Tashkent'))).split('.')[0],
                     user_name=message.from_user.username,
-                    price='199.000'
+                    price='597.000'
                 )
                 for user_ in await db.select_all_sell_course_users():
                     if user_[0] == user[0]:
@@ -165,7 +187,43 @@ async def process_photo(message: Message, state: FSMContext):
                     description=description,
                     course_sell_time=str(datetime.now(tz=timezone('Asia/Tashkent'))).split('.')[0],
                     user_name=message.from_user.username,
-                    price='199.000'
+                    price='1.200.000'
+                )
+                for user_ in await db.select_all_sell_course_users():
+                    if user_[0] == user[0]:
+                        await state.update_data(
+                            {
+                                "phone_number": user[2],
+                                "full_name": user[1],
+                                "data_time": user_[4],
+                                'price': user_[6]
+                            }
+                        )
+        user_info_1 = await state.get_data()
+        await bot.send_photo(
+            chat_id=config.ADMINS[0], photo=file_id, caption=(
+                f"<b>Foydalanuvchi id</b>: <i>{message.from_user.id}\n</i>"
+                f"<b>Telefon nomer</b>: <i>{user_info_1.get('phone_number')}\n</i>"
+                f"<b>Foydalanuvchi Ismi</b>: <i>{user_info_1.get('full_name')}\n</i>"
+                f"<b>Ta'rif</b>: <i>{user_info_1.get('description')}\n</i>"
+                f"<b>To'lov summasi</b>: <i>{user_info_1.get('price')}\n</i>"
+                f"<b>To'lov vaqti</b>:<i>{user_info_1.get('data_time')}\n </i>"
+                f"<b>Foydalanuvchi nomi</b>:<i> <a href='https://t.me/{user_info_1.get('phone_number')}'>{message.from_user.full_name}</a></i>"
+            ), reply_markup=await make_confirmation_keyboard(message.from_user.id)
+        )
+
+
+    if description == "Yangi":
+        for user in user_all:
+            if user[0] == str(message.from_user.id):
+                await db.add_sell_course_user(
+                    id=str(message.from_user.id),
+                    phone_number=user[2],
+                    full_name=user[1],
+                    description=description,
+                    course_sell_time=str(datetime.now(tz=timezone('Asia/Tashkent'))).split('.')[0],
+                    user_name=message.from_user.username,
+                    price='370.000'
                 )
                 for user_ in await db.select_all_sell_course_users():
                     if user_[0] == user[0]:
@@ -208,22 +266,19 @@ async def process_description_biznes(message: Message, state: FSMContext):
             "description": message.text
         }
     )
-    await message.answer(text="\t<b>Chempion</b>\n\n"
+    await message.answer(text="\t<b>🔰Chempion</b>\n\n"
                               "<b>Kurs narxi</b>👇\n"
-                              "❌<s><i>1.200.000 so'm</i></s>\n"
-                              "✅<i>199.000</i> so'm\n\n"
-                              "Suniy intellekt ✅\n"
-                              "Trading ✅\n"
-                              "Affiliate marketing ✅\n"
-                              "Freelancing ✅\n"
-                              "E-commerce ✅\n"
-                              "No coding dasturlash ✅\n"
-                              "Guruh chat✅\n"
-                              "Live vebinar lar✅\n"
-                              "Individual darslar✅\n"
-                              "Coffee break meeting✅\n"
-                              "Sertifikat ✅\n\n"
-                              "<b>ESLATMA❗</b>: <i>Chegirma 24soat amal qiladi</i>", reply_markup=price)
+                              "\t\t<i><b>1.200.000 so'm</b></i>\n"
+                              "<b>Xususiyatlari</b>👇\n"
+                              "\t\t<i><b>7 ta soha (xohishiy)✅</b></i>\n"
+                              "\t\t<i><b>Kurator yordami✅</b></i>\n"
+                              "\t\t<i><b>Guruh chat✅</b></i>\n"
+                              "\t\t<i><b>Live vebinarlar✅</b></i>\n"
+                              "\t\t<i><b>Individual darslar ✅</b></i>\n"
+                              "\t\t<i><b>Sertifikat ✅</b></i>\n"
+                              "\t\t<i><b>Coffee break ✅</b></i>\n"
+                              "\t\t<i><b>Offline meeting✅</b></i>\n"
+                              "\t\t<i><b>Investitsiya 30$✅</b></i>", reply_markup=price)
     await User_register.price.set()
 
 

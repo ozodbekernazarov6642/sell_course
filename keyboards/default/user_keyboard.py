@@ -19,6 +19,9 @@ phone_number_keyboard = ReplyKeyboardMarkup(
 description_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [
+            KeyboardButton(text="Yangi")
+        ],
+        [
             KeyboardButton(text="Qahramon"),
             KeyboardButton(text="Chempion")
         ]
