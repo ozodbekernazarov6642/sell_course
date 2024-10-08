@@ -22,10 +22,10 @@ async def confirmation(call: types.CallbackQuery):
     users_info = await db.select_all_sell_course_users()
     for user_ in users_info:
         if user_[0] == str(user_id):
-            if (user_[3] == "Qahramon" or user_[3] == "Бизнес") and user_[4].split(" ")[-1].strip() == \
+            if (user_[3] == "Yangi" or user_[3] == "Бизнес") and user_[4].split(" ")[-1].strip() == \
                     call.message.caption.split(" ")[-5].strip():
                 await bot.send_message(chat_id=int(user_id),
-                                       text=f"🔰 Qahramon \n\n"
+                                       text=f"🔰 Yangi \n\n"
                                             f"Sizning To'lovingiz Tasdiqlandi Opertor siz bn 24soat ichida bog'lanadi",
                                        disable_web_page_preview=True)
                 await db.add_con_sell_course_user(
